@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { LandingPage } from './components/LandingPage';
+import { ChatInterface } from './components/ChatInterface';
+import { CalendarConnect } from './components/CalendarConnect';
 import { Calendar } from './components/Calendar';
 import { EventForm } from './components/EventForm';
 import { UnscheduledTasks } from './components/UnscheduledTasks';
@@ -8,7 +11,10 @@ import { Task, Goal, AIAnalysisResult, Category } from './types';
 import { CalendarDays } from 'lucide-react';
 import { defaultCategories } from './data/categories';
 
+type AppState = 'landing' | 'chat' | 'connect' | 'main';
+
 function App() {
+  const [appState, setAppState] = useState<AppState>('landing');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
@@ -71,8 +77,46 @@ function App() {
     setShowEventForm(true);
   };
 
+  const handleEntrySelect = (entry: 'chat' | 'connect' | 'input') => {
+    if (entry === 'chat') {
+      setAppState('chat');
+    } else if (entry === 'connect') {
+      setAppState('connect');
+    } else {
+      setAppState('main');
+    }
+  };
+
+  const handleCalendarConnect = (provider: 'google' | 'outlook') => {
+    // TODO: Implement actual calendar connection
+    console.log(`Connecting to ${provider} calendar...`);
+    alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Calendar connection will be implemented soon!`);
+    setAppState('main');
+  };
+
   const scheduledTasks = tasks.filter(t => t.date);
   const unscheduledTasks = tasks.filter(t => !t.date);
+
+  if (appState === 'landing') {
+    return <LandingPage onSelectEntry={handleEntrySelect} />;
+  }
+
+  if (appState === 'chat') {
+    return (
+      <>
+        <ChatInterface onClose={() => setAppState('main')} />
+      </>
+    );
+  }
+
+  if (appState === 'connect') {
+    return (
+      <CalendarConnect
+        onClose={() => setAppState('landing')}
+        onConnect={handleCalendarConnect}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -80,10 +124,10 @@ function App() {
         <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <CalendarDays className="w-10 h-10 text-indigo-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Adaptive Life Planner</h1>
+            <h1 className="text-4xl font-bold text-gray-900">PLANelope</h1>
           </div>
           <p className="text-gray-600 text-lg">
-            Smart scheduling for university students with AI-powered optimization
+            Stop being busy. Start being intentional.
           </p>
         </header>
 
